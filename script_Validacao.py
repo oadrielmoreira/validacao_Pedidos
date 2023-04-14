@@ -108,3 +108,31 @@ connection_string = f"mssql+pyodbc://######:######@######?driver=ODBC+Driver+17+
 engine = create_engine(connection_string)
 
 pedido.to_sql(name='PEDIDOS', con=engine, if_exists='append', index=False)
+
+
+
+#Calculando Receita, Custo e Retorno Sobre a Venda (RSV)
+receita = pedido['Subtotal'].sum()
+custo = pedido['CT Produto'].sum()
+rsv = ((receita - custo)/receita)
+rsv = round(rsv * 100, 2)
+rsv = "{}%".format(rsv)
+
+
+#Criando dataframe de verificação de Disponibilidade e Compatibilidade dos preços ofertados pelo vendedor com os preços anúnciados pela empresa
+verifica = pd.DataFrame({
+    'PN' : pedido['PN Evergame'],
+    'Margem' : pedido['Margem'],
+    'Qtde' : pedido['Qtde'],
+    'Estoque' : pedido['VerificaEstoque'],
+    'VERIFICA E': pedido['Resultado Estoque'],
+    
+    'Preço' : pedido['PreçoUni'],
+    'Price' : pedido['VerificaPreco'],
+    'VERIFICA P' : pedido['Resultado Preco'],
+})
+
+#Printando todas as verificações necessárias para a validação de um pedido
+verifica
+disponibilidade
+print('Retorno Sobre a Venda: ' + rsv)
